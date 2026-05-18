@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Check-list Diário com Histórico</title>
+    <title>Check-list Diário com Revisão da Gestora</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -30,7 +30,6 @@
             background-color: #09090b;
             -webkit-tap-highlight-color: transparent;
         }
-        /* Customizar o input de data no dark mode */
         input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(1);
             cursor: pointer;
@@ -190,162 +189,196 @@
 
         function App() {
             const [selectedDate, setSelectedDate] = useState("");
-            const [completedItems, setCompletedItems] = useState({});
+            const [itemStatuses, setItemStatuses] = useState({});
+            const [isDaySaved, setIsDaySaved] = useState(false);
             const [displayDateText, setDisplayDateText] = useState("");
+            const [currentRole, setCurrentRole] = useState("funcionario");
+            const [showSaveNotification, setShowSaveNotification] = useState(false);
 
             const totalTasks = checklistData.reduce((acc, sec) => acc + sec.items.length, 0);
-            const completedCount = Object.values(completedItems).filter(Boolean).length;
+            const completedCount = Object.values(itemStatuses).filter(status => status === 'feito' || status === 'revisado').length;
+            const reviewedCount = Object.values(itemStatuses).filter(status => status === 'revisado').length;
+            
             const progressPercentage = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
+            const reviewPercentage = totalTasks > 0 ? Math.round((reviewedCount / totalTasks) * 100) : 0;
 
-            // Inicializa com a data de hoje
             useEffect(() => {
                 const today = new Date();
-                const localDateStr = today.toLocaleDateString('sv-SE'); // Formato YYYY-MM-DD estável
-                setSelectedDate(localDateStr);
+                setSelectedDate(today.toLocaleDateString('sv-SE'));
             }, []);
 
-            // Disparado sempre que o usuário muda a data no calendário
             useEffect(() => {
                 if (!selectedDate) return;
 
-                // 1. Atualizar o texto da data por extenso
                 const [year, month, day] = selectedDate.split("-");
                 const dateObj = new Date(year, month - 1, day);
                 const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
                 const formatted = dateObj.toLocaleDateString('pt-BR', options);
                 setDisplayDateText(formatted.charAt(0).toUpperCase() + formatted.slice(1));
 
-                // 2. Carregar os itens salvos especificamente desta data
-                const globalHistory = JSON.parse(localStorage.getItem('checklist_global_history') || '{}');
-                setCompletedItems(globalHistory[selectedDate] || {});
+                const globalHistory = JSON.parse(localStorage.getItem('checklist_v2_history') || '{}');
+                const dayData = globalHistory[selectedDate] || { statuses: {}, saved: false };
+                
+                setItemStatuses(dayData.statuses || {});
+                setIsDaySaved(dayData.saved || false);
             }, [selectedDate]);
 
-            const toggleItem = (itemId) => {
-                setCompletedItems(prev => {
-                    const updatedItems = { ...prev, [itemId]: !prev[itemId] };
-                    
-                    // Salva no histórico global associado àquela data específica
-                    const globalHistory = JSON.parse(localStorage.getItem('checklist_global_history') || '{}');
-                    globalHistory[selectedDate] = updatedItems;
-                    localStorage.setItem('checklist_global_history', JSON.stringify(globalHistory));
-                    
-                    return updatedItems;
+            const handleItemClick = (itemId) => {
+                setItemStatuses(prev => {
+                    const currentStatus = prev[itemId];
+                    let newStatus = null;
+
+                    if (currentRole === 'funcionario') {
+                        if (currentStatus === 'revisado') return prev;
+                        newStatus = currentStatus === 'feito' ? null : 'feito';
+                    } else if (currentRole === 'gestora') {
+                        newStatus = currentStatus === 'revisado' ? 'feito' : 'revisado';
+                    }
+
+                    const updatedStatuses = { ...prev, [itemId]: newStatus };
+                    saveToGlobalStorage(updatedStatuses, isDaySaved);
+                    return updatedStatuses;
                 });
             };
 
+            const saveToGlobalStorage = (statuses, savedFlag) => {
+                const globalHistory = JSON.parse(localStorage.getItem('checklist_v2_history') || '{}');
+                globalHistory[selectedDate] = { statuses, saved: savedFlag };
+                localStorage.setItem('checklist_v2_history', JSON.stringify(globalHistory));
+            };
+
+            const handleEmployeeSave = () => {
+                setIsDaySaved(true);
+                saveToGlobalStorage(itemStatuses, true);
+                setShowSaveNotification(true);
+                setTimeout(() => setShowSaveNotification(false), 4000);
+            };
+
             const resetDay = () => {
-                if (window.confirm(`Tem certeza que deseja limpar as marcações do dia selecionado?`)) {
-                    const emptyState = {};
-                    setCompletedItems(emptyState);
-                    
-                    const globalHistory = JSON.parse(localStorage.getItem('checklist_global_history') || '{}');
-                    globalHistory[selectedDate] = emptyState;
-                    localStorage.setItem('checklist_global_history', JSON.stringify(globalHistory));
+                if (window.confirm("Tem certeza que deseja zerar todas as marcações deste dia?")) {
+                    setItemStatuses({});
+                    setIsDaySaved(false);
+                    saveToGlobalStorage({}, false);
                 }
             };
 
-            const setToday = () => {
-                const today = new Date().toLocaleDateString('sv-SE');
-                setSelectedDate(today);
-            };
-
-            const isTodaySelected = selectedDate === new Date().toLocaleDateString('sv-SE');
-
             return (
                 <div class="max-w-6xl mx-auto px-4 pt-6">
-                    {/* Header */}
-                    <header class="bg-darkcard border border-darkborder rounded-2xl p-6 mb-8 shadow-xl sticky top-2 z-50 backdrop-blur-md bg-opacity-90">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                            
-                            {/* Bloco da Esquerda: Título e Seleção de Data */}
+                    {showSaveNotification && (
+                        <div class="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-black px-6 py-3 rounded-xl font-bold shadow-2xl flex items-center gap-2 animate-bounce">
+                            <svg class="w-5 h-5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Check-list salvo com sucesso! Pronto para a gestora revisar.
+                        </div>
+                    )}
+
+                    <header class="bg-darkcard border border-darkborder rounded-2xl p-6 mb-6 shadow-xl sticky top-2 z-40 backdrop-blur-md bg-opacity-90">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                             <div class="flex flex-col sm:flex-row sm:items-center gap-4">
                                 <div>
                                     <h1 class="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-                                        <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                        <svg class="w-6 h-6 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                         </svg>
-                                        CHECK-LIST DE SERVIÇOS
+                                        SISTEMA DE CHECK-LIST
                                     </h1>
-                                    <p class="text-xs text-emerald-400 font-medium mt-1">
-                                        {isTodaySelected ? "Visualizando: HOJE" : "Visualizando dia do HISTÓRICO"}
-                                    </p>
+                                    <div class="text-[11px] text-zinc-400 mt-0.5 font-medium flex items-center gap-2">
+                                        <span>{displayDateText}</span>
+                                        {isDaySaved && (
+                                            <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded text-[10px] uppercase font-bold">
+                                                💾 Salvo p/ Funcionário
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
+                                <input 
+                                    type="date" 
+                                    value={selectedDate}
+                                    onChange={(e) => setSelectedDate(e.target.value)}
+                                    class="bg-zinc-900 border border-darkborder rounded-xl px-3 py-2 text-sm text-white font-medium focus:outline-none focus:border-zinc-500"
+                                />
+                            </div>
 
-                                {/* Seletor de Data (Calendário) */}
-                                <div class="flex items-center gap-2">
-                                    <input 
-                                        type="date" 
-                                        value={selectedDate}
-                                        onChange={(e) => setSelectedDate(e.target.value)}
-                                        class="bg-zinc-900 border border-darkborder rounded-xl px-3 py-2 text-sm text-white font-medium focus:outline-none focus:border-emerald-500 transition-all duration-200"
-                                    />
-                                    {!isTodaySelected && (
-                                        <button 
-                                            onClick={setToday}
-                                            class="px-2.5 py-2 bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/30 text-emerald-400 hover:text-white text-xs font-bold rounded-xl transition-all duration-200"
-                                        >
-                                            Voltar para Hoje
-                                        </button>
-                                    )}
-                                </div>
+                            <div class="bg-zinc-900 p-1 rounded-xl border border-darkborder flex self-start lg:self-center">
+                                <button onClick={() => setCurrentRole('funcionario')} class={`px-4 py-2 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all duration-150 ${currentRole === 'funcionario' ? 'bg-emerald-600 text-white shadow' : 'text-zinc-400 hover:text-zinc-200'}`}>
+                                    🧑‍🔧 Funcionário
+                                </button>
+                                <button onClick={() => setCurrentRole('gestora')} class={`px-4 py-2 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-all duration-150 ${currentRole === 'gestora' ? 'bg-blue-600 text-white shadow' : 'text-zinc-400 hover:text-zinc-200'}`}>
+                                    👩‍💼 Gestora
+                                </button>
                             </div>
                             
-                            {/* Bloco da Direita: Progresso e Ações */}
-                            <div class="flex items-center gap-4 min-w-[240px] md:justify-end">
-                                <div class="flex-1 md:flex-none">
-                                    <div class="flex justify-between text-xs font-semibold text-zinc-400 mb-1">
-                                        <span>Progresso do dia</span>
-                                        <span class="text-emerald-400 font-bold">{progressPercentage}% ({completedCount}/{totalTasks})</span>
+                            <div class="flex items-center gap-4 min-w-[260px] lg:justify-end">
+                                <div class="flex-1 lg:flex-none">
+                                    <div class="flex justify-between text-[11px] font-semibold text-zinc-400 mb-1 gap-4">
+                                        <span class="flex items-center gap-1"><span class="w-2 h-2 bg-emerald-500 rounded-full"></span>Feito: {progressPercentage}%</span>
+                                        <span class="flex items-center gap-1"><span class="w-2 h-2 bg-blue-500 rounded-full"></span>Revisado: {reviewPercentage}%</span>
                                     </div>
-                                    <div class="w-full md:w-48 bg-zinc-800 rounded-full h-2.5 overflow-hidden">
-                                        <div 
-                                            class="bg-emerald-500 h-2.5 rounded-full transition-all duration-300" 
-                                            style={{ width: `${progressPercentage}%` }}
-                                        ></div>
-                                    </div>
-                                    <div class="text-[10px] text-zinc-500 mt-0.5 text-right">
-                                        {displayDateText}
+                                    <div class="w-full lg:w-44 bg-zinc-800 rounded-full h-2 relative overflow-hidden">
+                                        <div class="bg-emerald-500 h-full absolute left-0 top-0 transition-all duration-300" style={{ width: `${progressPercentage}%`, zIndex: 1 }}></div>
+                                        <div class="bg-blue-500 h-full absolute left-0 top-0 transition-all duration-300" style={{ width: `${reviewPercentage}%`, zIndex: 2 }}></div>
                                     </div>
                                 </div>
-                                <button 
-                                    onClick={resetDay} 
-                                    class="p-2.5 bg-zinc-800 hover:bg-red-950/40 border border-zinc-700 hover:border-red-800/60 rounded-xl text-zinc-400 hover:text-red-400 transition-all duration-200"
-                                    title="Limpar este dia"
-                                >
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                                {currentRole === 'funcionario' && (
+                                    <button onClick={handleEmployeeSave} class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-black font-bold text-xs rounded-xl shadow transition-all duration-200 flex items-center gap-1">
+                                        💾 Salvar
+                                    </button>
+                                )}
+
+                                <button onClick={resetDay} class="p-2.5 bg-zinc-800 hover:bg-red-950/40 border border-zinc-700 hover:border-red-800/60 rounded-xl text-zinc-400 hover:text-red-400 transition-all duration-200" title="Zerar este dia">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 </button>
                             </div>
-
                         </div>
                     </header>
 
-                    {/* Grid de Seções */}
                     <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {checklistData.map((section) => (
                             <section key={section.id} class="bg-darkcard border border-darkborder rounded-2xl overflow-hidden shadow-md flex flex-col">
-                                <div class="bg-zinc-900 border-b border-darkborder px-4 py-3.5">
-                                    <h2 class="text-sm font-bold text-zinc-300 tracking-wide uppercase">{section.title}</h2>
+                                <div class="bg-zinc-900 border-b border-darkborder px-4 py-3">
+                                    <h2 class="text-xs font-bold text-zinc-400 tracking-wide uppercase">{section.title}</h2>
                                 </div>
 
                                 <div class="p-3 flex-1 flex flex-col gap-2">
                                     {section.items.map((item) => {
-                                        const isDone = !!completedItems[item.id];
+                                        const status = itemStatuses[item.id];
+                                        let buttonStyles = "bg-zinc-900/40 border-zinc-800 text-zinc-300 hover:bg-zinc-800/50";
+                                        let checkboxStyles = "border-zinc-600 bg-zinc-950";
+                                        let textStyles = "";
+                                        let checkIcon = null;
+
+                                        if (status === 'feito') {
+                                            buttonStyles = "bg-emerald-950/20 border-emerald-500/40 text-emerald-300";
+                                            checkboxStyles = "bg-emerald-500 border-emerald-400 text-black";
+                                            textStyles = "line-through text-emerald-400/60";
+                                            checkIcon = <svg class="w-3 h-3 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>;
+                                        } else if (status === 'revisado') {
+                                            buttonStyles = "bg-blue-950/20 border-blue-500/40 text-blue-300";
+                                            checkboxStyles = "bg-blue-500 border-blue-400 text-white";
+                                            textStyles = "line-through text-blue-400/60 font-semibold";
+                                            checkIcon = <svg class="w-3 h-3 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>;
+                                        }
+
                                         return (
                                             <button 
                                                 key={item.id} 
-                                                onClick={() => toggleItem(item.id)} 
-                                                class={`w-full text-left p-3 rounded-xl border flex items-start gap-3 transition-all duration-200 cursor-pointer select-none ${isDone ? 'bg-emerald-950/20 border-emerald-500/40 text-emerald-300 shadow-inner' : 'bg-zinc-900/40 border-zinc-800 text-zinc-300 hover:bg-zinc-800/50'}`}
+                                                onClick={() => handleItemClick(item.id)} 
+                                                disabled={currentRole === 'funcionario' && status === 'revisado'}
+                                                class={`w-full text-left p-3 rounded-xl border flex items-start gap-3 transition-all duration-150 select-none ${buttonStyles} ${currentRole === 'funcionario' && status === 'revisado' ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
                                             >
-                                                <div class={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all duration-200 ${isDone ? 'bg-emerald-500 border-emerald-400 text-black' : 'border-zinc-600 bg-zinc-950'}`}>
-                                                    {isDone && (
-                                                        <svg class="w-3.5 h-3.5 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                                        </svg>
+                                                <div class={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all duration-150 ${checkboxStyles}`}>
+                                                    {checkIcon}
+                                                </div>
+                                                <div class="flex flex-col flex-1">
+                                                    <span class={`text-sm font-medium leading-tight ${textStyles}`}>{item.text}</span>
+                                                    {status === 'revisado' && (
+                                                        <span class="text-[9px] text-blue-400/80 mt-0.5 uppercase tracking-wider font-bold">✓ Revisado por Gestora</span>
                                                     )}
                                                 </div>
-                                                <span class={`text-sm font-medium leading-tight ${isDone ? 'line-through text-emerald-400/70' : ''}`}>{item.text}</span>
                                             </button>
                                         );
                                     })}
