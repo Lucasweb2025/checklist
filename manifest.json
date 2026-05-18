@@ -1,0 +1,16 @@
+{
+  "name": "CHECK-LIST LIMPEZA",
+  "short_name": "CHECK-LIST LIMPEZA",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#18181b",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/27cxGcb1/lacustomlogotipo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
