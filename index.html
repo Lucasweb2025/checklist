@@ -92,6 +92,7 @@
             const [displayDateText, setDisplayDateText] = useState("");
             const [currentRole, setCurrentRole] = useState("colaborador");
             const [notification, setNotification] = useState("");
+            const [showIOSPrompt, setShowIOSPrompt] = useState(false);
 
             const totalTasks = checklistData.reduce((acc, sec) => acc + sec.items.length, 0);
             const completedCount = Object.values(itemStatuses).filter(s => s === 'feito' || s === 'revisado').length;
@@ -104,6 +105,15 @@
                 setSelectedDate(new Date().toLocaleDateString('sv-SE'));
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
+                }
+
+                // DETECTOR DE IPHONE INTELIGENTE
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                const isStandalone = window.navigator.standalone === true;
+                
+                // Se for iPhone e ainda NÃO estiver instalado, mostra o aviso explicativo
+                if (isIOS && !isStandalone) {
+                    setShowIOSPrompt(true);
                 }
             }, []);
 
@@ -168,6 +178,22 @@
                     {notification && (
                         <div class="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-black px-6 py-3 rounded-xl font-bold shadow-2xl">
                             {notification}
+                        </div>
+                    )}
+
+                    {/* BALÃO EXPLICATIVO PARA IPHONE */}
+                    {showIOSPrompt && (
+                        <div class="fixed bottom-4 left-4 right-4 bg-zinc-900 border-2 border-blue-500/60 p-4 rounded-2xl shadow-2xl z-50 flex items-center justify-between gap-4 animate-fade-in">
+                            <div class="flex items-start gap-3">
+                                <span class="text-2xl mt-0.5">🍏</span>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white">Instalar no seu iPhone</h4>
+                                    <p class="text-xs text-zinc-400 mt-1 leading-relaxed">
+                                        Para usar sem o Chrome, toque no botão de <strong class="text-blue-400">Compartilhar</strong> (o quadrado com uma seta para cima no Safari) e escolha <strong class="text-white">'Adicionar à Tela de Início'</strong>.
+                                    </p>
+                                </div>
+                            </div>
+                            <button onClick={() => setShowIOSPrompt(false)} class="text-xs font-bold text-zinc-500 hover:text-zinc-300 px-2 py-1 shrink-0">Fechar</button>
                         </div>
                     )}
 
