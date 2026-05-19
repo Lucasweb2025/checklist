@@ -1,19 +1,21 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CHECK-LIST LIMPEZA</title>
-    
+
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#18181b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CHECK-LIST LIMPEZA">
-    
+
     <link rel="apple-touch-icon" href="https://i.ibb.co/27cxGcb1/lacustomlogotipo.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -27,248 +29,529 @@
             }
         }
     </script>
+
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #09090b; -webkit-tap-highlight-color: transparent; }
-        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
-    </style>
-</head>
-<body class="text-zinc-100 min-h-screen antialiased pb-12">
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-
-        const checklistData = [
-            { id: "sec_1", title: "1 - COPA", items: [{ id: "1_1", text: "Café" }] },
-            { id: "sec_2", title: "2 - RECEPÇÃO", items: [
-                { id: "2_1", text: "Varrer a calçada" },
-                { id: "2_2", text: "Varrer a sala" },
-                { id: "2_3", text: "Repor água das máquinas e da garrafa" },
-                { id: "2_4", text: "Repõe as capsulas, sachês, e mexedor de café" },
-                { id: "2_5", text: "Repõe as xícaras e copos" },
-                { id: "2_6", text: "Higienização geral das superfícies" },
-                { id: "2_7", text: "Troca o lixo" },
-                { id: "2_8", text: "Regar as plantas" },
-                { id: "2_9", text: "Passar pano chão" }
-            ]},
-            { id: "sec_3", title: "3 - ÁREA DE CONVIVÊNCIA", items: [
-                { id: "3_1", text: "Varrer a sala" },
-                { id: "3_2", text: "Repor água das máquinas" },
-                { id: "3_3", text: "Repõe as capsulas, sachês, e mexedor de café" },
-                { id: "3_4", text: "Repõe as xícaras e copos" },
-                { id: "3_5", text: "Higienização geral das superfícies" },
-                { id: "3_6", text: "Troca o lixo" },
-                { id: "3_7", text: "Regar as plantas" },
-                { id: "3_8", text: "Passar pano no chão" }
-            ]},
-            { id: "sec_4", title: "4 - SALA DE REUNIÃO", items: [{ id: "4_1", text: "Limpeza das superfícies" }, { id: "4_2", text: "Varre" }, { id: "4_3", text: "Passar pano no chão" }] },
-            { id: "sec_5", title: "5 - SALA DO LINCOILN", items: [{ id: "5_1", text: "Repor água da geladeira" }, { id: "5_2", text: "Limpa as superfícies" }, { id: "5_3", text: "Varrer" }, { id: "5_4", text: "Passar pano chão" }, { id: "5_5", text: "Tira o lixo" }] },
-            { id: "sec_6", title: "6 - COPINHA", items: [{ id: "6_1", text: "Lavar louça" }, { id: "6_2", text: "Limpa as superfícies" }, { id: "6_3", text: "Tira o lixo" }, { id: "6_4", text: "Repõe papel toalha" }, { id: "6_5", text: "Descer panos de prato para lavar" }] },
-            { id: "sec_7", title: "7 - SALA ADMINISTRATIVO", items: [{ id: "7_1", text: "Limpa as superfícies" }, { id: "7_2", text: "Varre" }, { id: "7_3", text: "Passar pano chão" }, { id: "7_4", text: "Tira o lixo" }] },
-            { id: "sec_8", title: "8 - BANHEIRO", items: [{ id: "8_1", text: "Limpa as superfícies" }, { id: "8_2", text: "Repor papeis" }, { id: "8_3", text: "Lavar vaso" }, { id: "8_4", text: "Manutenção do lixo" }, { id: "8_5", text: "1x por semana lavar o banheiro todo" }] },
-            { id: "sec_9", title: "9 - LIMPEZA DE VIDROS BOXES E PORTAS", items: [{ id: "9_1", text: "Passar pano com vinagre" }, { id: "9_2", text: "Passar pano seco" }] },
-            { id: "sec_10", title: "10 - BANHEIROS DE FUNCIONÁRIOS", items: [{ id: "10_1", text: "1x por semana lavar o banheiro todo" }, { id: "10_2", text: "Limpa as superfícies" }, { id: "10_3", text: "Repor papeis" }, { id: "10_4", text: "Lavar vaso" }, { id: "10_5", text: "Manutenção do lixo" }] },
-            { id: "sec_11", title: "11 - COPA - café da manhã", items: [{ id: "11_1", text: "Limpa as superfícies" }, { id: "11_2", text: "Varrer" }, { id: "11_3", text: "Passar pano" }, { id: "11_4", text: "Lavar a louça" }] },
-            { id: "sec_12", title: "12 - LIMPEZA DOS PANOS", items: [{ id: "12_1", text: "Separar por uso" }, { id: "12_2", text: "Colocar de molho os mais limpos" }, { id: "12_3", text: "Esfregar os encardidos" }] },
-            { id: "sec_13", title: "13 - CAFÉ DA TARDE", items: [
-                { id: "13_1", text: "COPA - Almoço" },
-                { id: "13_2", text: "Limpa as superfícies" },
-                { id: "13_3", text: "Varrer" },
-                { id: "13_4", text: "Passar pano" }
-            ]},
-            { id: "sec_14", title: "14 - REVISÃO PARA O FECHAMENTO (areas de clientes)", items: [{ id: "14_1", text: "Revisão geral para o fechamento (áreas de clientes)" }] }
-        ];
-
-        function App() {
-            const [selectedDate, setSelectedDate] = useState("");
-            const [itemStatuses, setItemStatuses] = useState({});
-            const [savedStatus, setSavedStatus] = useState({ colaborador: false, gestora: false });
-            const [displayDateText, setDisplayDateText] = useState("");
-            const [currentRole, setCurrentRole] = useState("colaborador");
-            const [notification, setNotification] = useState("");
-            const [showIOSPrompt, setShowIOSPrompt] = useState(false);
-
-            const totalTasks = checklistData.reduce((acc, sec) => acc + sec.items.length, 0);
-            const completedCount = Object.values(itemStatuses).filter(s => s === 'feito' || s === 'revisado').length;
-            const reviewedCount = Object.values(itemStatuses).filter(s => s === 'revisado').length;
-            
-            const progressPercentage = Math.round((completedCount / totalTasks) * 100) || 0;
-            const reviewPercentage = Math.round((reviewedCount / totalTasks) * 100) || 0;
-
-            useEffect(() => {
-                setSelectedDate(new Date().toLocaleDateString('sv-SE'));
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
-                }
-
-                // DETECTOR DE IPHONE INTELIGENTE
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                const isStandalone = window.navigator.standalone === true;
-                
-                // Se for iPhone e ainda NÃO estiver instalado, mostra o aviso explicativo
-                if (isIOS && !isStandalone) {
-                    setShowIOSPrompt(true);
-                }
-            }, []);
-
-            useEffect(() => {
-                if (!selectedDate) return;
-                const [year, month, day] = selectedDate.split("-");
-                const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-                setDisplayDateText(new Date(year, month - 1, day).toLocaleDateString('pt-BR', options));
-
-                const globalHistory = JSON.parse(localStorage.getItem('checklist_exact_history') || '{}');
-                const dayData = globalHistory[selectedDate] || { statuses: {}, saved: { colaborador: false, gestora: false } };
-                setItemStatuses(dayData.statuses || {});
-                setSavedStatus(dayData.saved || { colaborador: false, gestora: false });
-                setCurrentRole("colaborador");
-            }, [selectedDate]);
-
-            const handleRoleSwitch = (role) => {
-                if (role === 'gestora') {
-                    const pass = prompt("Digite a senha de acesso da Gestora:");
-                    if (pass === "1234") {
-                        setCurrentRole("gestora");
-                    } else {
-                        alert("Senha incorreta! Acesso negado.");
-                    }
-                } else {
-                    setCurrentRole("colaborador");
-                }
-            };
-
-            const handleItemClick = (itemId) => {
-                setItemStatuses(prev => {
-                    const current = prev[itemId];
-                    let next = null;
-                    if (currentRole === 'colaborador') {
-                        if (current === 'revisado') return prev;
-                        next = current === 'feito' ? null : 'feito';
-                    } else {
-                        next = current === 'revisado' ? 'feito' : 'revisado';
-                    }
-                    const updated = { ...prev, [itemId]: next };
-                    saveToLocalStorage(updated, savedStatus);
-                    return updated;
-                });
-            };
-
-            const saveToLocalStorage = (statuses, saved) => {
-                const globalHistory = JSON.parse(localStorage.getItem('checklist_exact_history') || '{}');
-                globalHistory[selectedDate] = { statuses, saved };
-                localStorage.setItem('checklist_exact_history', JSON.stringify(globalHistory));
-            };
-
-            const handleSaveClick = () => {
-                const newSaved = { ...savedStatus, [currentRole]: true };
-                setSavedStatus(newSaved);
-                saveToLocalStorage(itemStatuses, newSaved);
-                setNotification(`Check-list salvo por: ${currentRole === 'gestora' ? 'Gestora' : 'Colaborador'}!`);
-                setTimeout(() => setNotification(""), 3500);
-            };
-
-            return (
-                <div class="max-w-6xl mx-auto px-4 pt-6">
-                    {notification && (
-                        <div class="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-black px-6 py-3 rounded-xl font-bold shadow-2xl">
-                            {notification}
-                        </div>
-                    )}
-
-                    {/* BALÃO EXPLICATIVO PARA IPHONE */}
-                    {showIOSPrompt && (
-                        <div class="fixed bottom-4 left-4 right-4 bg-zinc-900 border-2 border-blue-500/60 p-4 rounded-2xl shadow-2xl z-50 flex items-center justify-between gap-4 animate-fade-in">
-                            <div class="flex items-start gap-3">
-                                <span class="text-2xl mt-0.5">🍏</span>
-                                <div>
-                                    <h4 class="text-sm font-bold text-white">Instalar no seu iPhone</h4>
-                                    <p class="text-xs text-zinc-400 mt-1 leading-relaxed">
-                                        Para usar sem o Chrome, toque no botão de <strong class="text-blue-400">Compartilhar</strong> (o quadrado com uma seta para cima no Safari) e escolha <strong class="text-white">'Adicionar à Tela de Início'</strong>.
-                                    </p>
-                                </div>
-                            </div>
-                            <button onClick={() => setShowIOSPrompt(false)} class="text-xs font-bold text-zinc-500 hover:text-zinc-300 px-2 py-1 shrink-0">Fechar</button>
-                        </div>
-                    )}
-
-                    <header class="bg-darkcard border border-darkborder rounded-2xl p-6 mb-6 shadow-xl sticky top-2 z-40 backdrop-blur-md bg-opacity-90">
-                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-                                <div>
-                                    <h1 class="text-xl font-bold text-white tracking-tight">CHECK-LIST LIMPEZA</h1>
-                                    <div class="text-[11px] text-zinc-400 mt-1 font-medium flex flex-wrap items-center gap-2 uppercase">
-                                        <span>{displayDateText}</span>
-                                        {savedStatus.colaborador && <span class="bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 font-bold">💾 Salvo Colaborador</span>}
-                                        {savedStatus.gestora && <span class="bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20 font-bold">💾 Salvo Gestora</span>}
-                                    </div>
-                                </div>
-                                <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} class="bg-zinc-900 border border-darkborder rounded-xl px-3 py-2 text-sm text-white"/>
-                            </div>
-
-                            <div class="bg-zinc-900 p-1 rounded-xl border border-darkborder flex self-start lg:self-center">
-                                <button onClick={() => handleRoleSwitch('colaborador')} class={`px-4 py-2 text-xs font-bold rounded-lg ${currentRole === 'colaborador' ? 'bg-emerald-600 text-white shadow' : 'text-zinc-500'}`}>🧑‍🔧 COLABORADOR</button>
-                                <button onClick={() => handleRoleSwitch('gestora')} class={`px-4 py-2 text-xs font-bold rounded-lg ${currentRole === 'gestora' ? 'bg-blue-600 text-white shadow' : 'text-zinc-500'}`}>👩‍💼 GESTORA</button>
-                            </div>
-                            
-                            <div class="flex items-center gap-4 min-w-[260px] lg:justify-end">
-                                <div class="flex-1 lg:flex-none">
-                                    <div class="flex justify-between text-[10px] font-bold text-zinc-400 mb-1">
-                                        <span class="text-emerald-400">FEITO: {progressPercentage}%</span>
-                                        <span class={currentRole === 'gestora' ? "text-blue-400" : "hidden"}>REVISADO: {reviewPercentage}%</span>
-                                    </div>
-                                    <div class="w-full lg:w-40 bg-zinc-800 h-2 rounded-full relative overflow-hidden">
-                                        <div class="bg-emerald-500 h-full absolute transition-all" style={{ width: `${progressPercentage}%`, zIndex: 1 }}></div>
-                                        <div class={currentRole === 'gestora' ? "bg-blue-500 h-full absolute transition-all" : "hidden"} style={{ width: `${reviewPercentage}%`, zIndex: 2 }}></div>
-                                    </div>
-                                </div>
-                                <button onClick={handleSaveClick} class={`px-5 py-2.5 rounded-xl font-bold text-xs shadow ${currentRole === 'gestora' ? 'bg-blue-600 text-white' : 'bg-emerald-500 text-black'}`}>SALVAR</button>
-                            </div>
-                        </div>
-                    </header>
-
-                    <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {checklistData.map((section) => (
-                            <section key={section.id} class="bg-darkcard border border-darkborder rounded-2xl overflow-hidden shadow-md flex flex-col">
-                                <div class="bg-zinc-900 border-b border-darkborder px-4 py-3"><h2 class="text-xs font-bold text-zinc-300 uppercase">{section.title}</h2></div>
-                                <div class="p-3 flex-1 flex flex-col gap-2">
-                                    {section.items.map((item) => {
-                                        const status = itemStatuses[item.id];
-                                        let bStyle = "bg-zinc-900/40 border-zinc-800 text-zinc-300 hover:bg-zinc-800/50";
-                                        let cStyle = "border-zinc-600 bg-zinc-950 text-transparent";
-                                        
-                                        if (status === 'feito') { bStyle = "bg-emerald-950/20 border-emerald-500/40 text-emerald-300"; cStyle = "bg-emerald-500 border-emerald-400 text-black"; }
-                                        if (status === 'revisado') {
-                                            if (currentRole === 'gestora') { bStyle = "bg-blue-950/20 border-blue-500/40 text-blue-300"; cStyle = "bg-blue-500 border-blue-400 text-white"; }
-                                            else { bStyle = "bg-emerald-950/10 border-emerald-500/20 text-emerald-300/40 opacity-60"; cStyle = "bg-emerald-500 border-emerald-500/30 text-black opacity-40"; }
-                                        }
-
-                                        return (
-                                            <button key={item.id} onClick={() => handleItemClick(item.id)} disabled={currentRole === 'colaborador' && status === 'revisado'} class={`w-full text-left p-3 rounded-xl border flex items-start gap-3 transition-all ${bStyle} ${currentRole === 'colaborador' && status === 'revisado' ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-                                                <div class={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 font-bold text-xs ${cStyle}`}>{(status === 'feito' || status === 'revisado') && "✓"}</div>
-                                                <div class="flex flex-col flex-1">
-                                                    <span class={`text-sm font-medium leading-tight ${status ? 'line-through opacity-70' : ''}`}>{item.text}</span>
-                                                    {status === 'revisado' && currentRole === 'gestora' && <span class="text-[9px] text-blue-400 font-bold mt-0.5">✓ REVISADO</span>}
-                                                    {status === 'revisado' && currentRole === 'colaborador' && <span class="text-[9px] text-emerald-500/60 font-bold mt-0.5">✓ REVISADO PELA GESTORA</span>}
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </section>
-                        ))}
-                    </main>
-                </div>
-            );
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #09090b;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body class="text-zinc-100 min-h-screen antialiased pb-12">
+
+<div id="root"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+    import {
+        getFirestore,
+        doc,
+        setDoc,
+        getDoc,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    window.firebaseModules = {
+        initializeApp,
+        getFirestore,
+        doc,
+        setDoc,
+        getDoc,
+        serverTimestamp
+    };
+</script>
+
+<script type="text/babel">
+
+const {
+    initializeApp,
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    serverTimestamp
+} = window.firebaseModules;
+
+const firebaseConfig = {
+    apiKey: "AIzaSyABY2-VNbYDiBZLI1HT-rPXsbH_qFo27OY",
+    authDomain: "check-list-limpeza.firebaseapp.com",
+    projectId: "check-list-limpeza",
+    storageBucket: "check-list-limpeza.firebasestorage.app",
+    messagingSenderId: "790763509422",
+    appId: "1:790763509422:web:7bbbbdd7de8d5e4745bf3f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const { useState, useEffect } = React;
+
+const checklistData = [
+    {
+        id: "sec_1",
+        title: "1 - COPA",
+        items: [{ id: "1_1", text: "Café" }]
+    },
+
+    {
+        id: "sec_2",
+        title: "2 - RECEPÇÃO",
+        items: [
+            { id: "2_1", text: "Varrer a calçada" },
+            { id: "2_2", text: "Varrer a sala" },
+            { id: "2_3", text: "Repor água das máquinas e da garrafa" },
+            { id: "2_4", text: "Repõe as capsulas, sachês, e mexedor de café" },
+            { id: "2_5", text: "Repõe as xícaras e copos" },
+            { id: "2_6", text: "Higienização geral das superfícies" },
+            { id: "2_7", text: "Troca o lixo" },
+            { id: "2_8", text: "Regar as plantas" },
+            { id: "2_9", text: "Passar pano chão" }
+        ]
+    }
+];
+
+function App() {
+
+    const [selectedDate, setSelectedDate] = useState("");
+    const [itemStatuses, setItemStatuses] = useState({});
+    const [savedStatus, setSavedStatus] = useState({
+        colaborador: false,
+        gestora: false
+    });
+
+    const [displayDateText, setDisplayDateText] = useState("");
+    const [currentRole, setCurrentRole] = useState("colaborador");
+    const [notification, setNotification] = useState("");
+
+    const totalTasks = checklistData.reduce(
+        (acc, sec) => acc + sec.items.length,
+        0
+    );
+
+    const completedCount = Object.values(itemStatuses)
+        .filter(s => s === 'feito' || s === 'revisado')
+        .length;
+
+    const reviewedCount = Object.values(itemStatuses)
+        .filter(s => s === 'revisado')
+        .length;
+
+    const progressPercentage =
+        Math.round((completedCount / totalTasks) * 100) || 0;
+
+    const reviewPercentage =
+        Math.round((reviewedCount / totalTasks) * 100) || 0;
+
+    useEffect(() => {
+
+        setSelectedDate(
+            new Date().toLocaleDateString('sv-SE')
+        );
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker
+                .register('sw.js')
+                .catch(err => console.log(err));
+        }
+
+    }, []);
+
+    useEffect(() => {
+
+        if (!selectedDate) return;
+
+        const [year, month, day] = selectedDate.split("-");
+
+        const options = {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        };
+
+        setDisplayDateText(
+            new Date(year, month - 1, day)
+            .toLocaleDateString('pt-BR', options)
+        );
+
+        loadChecklist();
+
+        setCurrentRole("colaborador");
+
+    }, [selectedDate]);
+
+    const loadChecklist = async () => {
+
+        try {
+
+            const docRef = doc(db, "checklists", selectedDate);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+
+                const data = docSnap.data();
+
+                setItemStatuses(data.statuses || {});
+
+                setSavedStatus(
+                    data.saved || {
+                        colaborador: false,
+                        gestora: false
+                    }
+                );
+
+            } else {
+
+                setItemStatuses({});
+
+                setSavedStatus({
+                    colaborador: false,
+                    gestora: false
+                });
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const saveToFirebase = async (statuses, saved) => {
+
+        if (!selectedDate) return;
+
+        try {
+
+            await setDoc(
+                doc(db, "checklists", selectedDate),
+                {
+                    statuses,
+                    saved,
+                    updatedAt: serverTimestamp()
+                }
+            );
+
+            console.log("Checklist salvo!");
+
+        } catch (error) {
+            console.error("Erro ao salvar:", error);
+        }
+    };
+
+    const handleRoleSwitch = (role) => {
+
+        if (role === 'gestora') {
+
+            const pass = prompt(
+                "Digite a senha de acesso da Gestora:"
+            );
+
+            if (pass === "1234") {
+                setCurrentRole("gestora");
+            } else {
+                alert("Senha incorreta! Acesso negado.");
+            }
+
+        } else {
+            setCurrentRole("colaborador");
+        }
+    };
+
+    const handleItemClick = (itemId) => {
+
+        setItemStatuses(prev => {
+
+            const current = prev[itemId];
+            let next = null;
+
+            if (currentRole === 'colaborador') {
+
+                if (current === 'revisado') return prev;
+
+                next = current === 'feito'
+                    ? null
+                    : 'feito';
+
+            } else {
+
+                next = current === 'revisado'
+                    ? 'feito'
+                    : 'revisado';
+            }
+
+            const updated = {
+                ...prev,
+                [itemId]: next
+            };
+
+            saveToFirebase(updated, savedStatus);
+
+            return updated;
+        });
+    };
+
+    const handleSaveClick = () => {
+
+        const newSaved = {
+            ...savedStatus,
+            [currentRole]: true
+        };
+
+        setSavedStatus(newSaved);
+
+        saveToFirebase(itemStatuses, newSaved);
+
+        setNotification(
+            `Check-list salvo por: ${
+                currentRole === 'gestora'
+                    ? 'Gestora'
+                    : 'Colaborador'
+            }!`
+        );
+
+        setTimeout(() => setNotification(""), 3500);
+    };
+
+    return (
+
+        <div className="max-w-6xl mx-auto px-4 pt-6">
+
+            {notification && (
+                <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-black px-6 py-3 rounded-xl font-bold shadow-2xl">
+                    {notification}
+                </div>
+            )}
+
+            <header className="bg-darkcard border border-darkborder rounded-2xl p-6 mb-6 shadow-xl sticky top-2 z-40 backdrop-blur-md bg-opacity-90">
+
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+
+                        <div>
+                            <h1 className="text-xl font-bold text-white tracking-tight">
+                                CHECK-LIST LIMPEZA
+                            </h1>
+
+                            <div className="text-[11px] text-zinc-400 mt-1 font-medium flex flex-wrap items-center gap-2 uppercase">
+
+                                <span>{displayDateText}</span>
+
+                                {savedStatus.colaborador && (
+                                    <span className="bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 font-bold">
+                                        💾 Salvo Colaborador
+                                    </span>
+                                )}
+
+                                {savedStatus.gestora && (
+                                    <span className="bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20 font-bold">
+                                        💾 Salvo Gestora
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="bg-zinc-900 border border-darkborder rounded-xl px-3 py-2 text-sm text-white"
+                        />
+                    </div>
+
+                    <div className="bg-zinc-900 p-1 rounded-xl border border-darkborder flex self-start lg:self-center">
+
+                        <button
+                            onClick={() => handleRoleSwitch('colaborador')}
+                            className={`px-4 py-2 text-xs font-bold rounded-lg ${
+                                currentRole === 'colaborador'
+                                ? 'bg-emerald-600 text-white shadow'
+                                : 'text-zinc-500'
+                            }`}
+                        >
+                            🧑‍🔧 COLABORADOR
+                        </button>
+
+                        <button
+                            onClick={() => handleRoleSwitch('gestora')}
+                            className={`px-4 py-2 text-xs font-bold rounded-lg ${
+                                currentRole === 'gestora'
+                                ? 'bg-blue-600 text-white shadow'
+                                : 'text-zinc-500'
+                            }`}
+                        >
+                            👩‍💼 GESTORA
+                        </button>
+                    </div>
+
+                    <div className="flex items-center gap-4 min-w-[260px] lg:justify-end">
+
+                        <div className="flex-1 lg:flex-none">
+
+                            <div className="flex justify-between text-[10px] font-bold text-zinc-400 mb-1">
+
+                                <span className="text-emerald-400">
+                                    FEITO: {progressPercentage}%
+                                </span>
+
+                                <span className={
+                                    currentRole === 'gestora'
+                                    ? 'text-blue-400'
+                                    : 'hidden'
+                                }>
+                                    REVISADO: {reviewPercentage}%
+                                </span>
+                            </div>
+
+                            <div className="w-full lg:w-40 bg-zinc-800 h-2 rounded-full relative overflow-hidden">
+
+                                <div
+                                    className="bg-emerald-500 h-full absolute transition-all"
+                                    style={{ width: `${progressPercentage}%`, zIndex: 1 }}
+                                ></div>
+
+                                <div
+                                    className={
+                                        currentRole === 'gestora'
+                                        ? 'bg-blue-500 h-full absolute transition-all'
+                                        : 'hidden'
+                                    }
+                                    style={{ width: `${reviewPercentage}%`, zIndex: 2 }}
+                                ></div>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={handleSaveClick}
+                            className={`px-5 py-2.5 rounded-xl font-bold text-xs shadow ${
+                                currentRole === 'gestora'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-emerald-500 text-black'
+                            }`}
+                        >
+                            SALVAR
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                {checklistData.map((section) => (
+
+                    <section
+                        key={section.id}
+                        className="bg-darkcard border border-darkborder rounded-2xl overflow-hidden shadow-md flex flex-col"
+                    >
+
+                        <div className="bg-zinc-900 border-b border-darkborder px-4 py-3">
+                            <h2 className="text-xs font-bold text-zinc-300 uppercase">
+                                {section.title}
+                            </h2>
+                        </div>
+
+                        <div className="p-3 flex-1 flex flex-col gap-2">
+
+                            {section.items.map((item) => {
+
+                                const status = itemStatuses[item.id];
+
+                                let bStyle =
+                                    "bg-zinc-900/40 border-zinc-800 text-zinc-300 hover:bg-zinc-800/50";
+
+                                let cStyle =
+                                    "border-zinc-600 bg-zinc-950 text-transparent";
+
+                                if (status === 'feito') {
+                                    bStyle = "bg-emerald-950/20 border-emerald-500/40 text-emerald-300";
+                                    cStyle = "bg-emerald-500 border-emerald-400 text-black";
+                                }
+
+                                if (status === 'revisado') {
+
+                                    if (currentRole === 'gestora') {
+                                        bStyle = "bg-blue-950/20 border-blue-500/40 text-blue-300";
+                                        cStyle = "bg-blue-500 border-blue-400 text-white";
+                                    } else {
+                                        bStyle = "bg-emerald-950/10 border-emerald-500/20 text-emerald-300/40 opacity-60";
+                                        cStyle = "bg-emerald-500 border-emerald-500/30 text-black opacity-40";
+                                    }
+                                }
+
+                                return (
+
+                                    <button
+                                        key={item.id}
+                                        onClick={() => handleItemClick(item.id)}
+                                        disabled={
+                                            currentRole === 'colaborador' &&
+                                            status === 'revisado'
+                                        }
+                                        className={`w-full text-left p-3 rounded-xl border flex items-start gap-3 transition-all ${bStyle} ${
+                                            currentRole === 'colaborador' &&
+                                            status === 'revisado'
+                                            ? 'cursor-not-allowed'
+                                            : 'cursor-pointer'
+                                        }`}
+                                    >
+
+                                        <div className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 font-bold text-xs ${cStyle}`}>
+                                            {(status === 'feito' || status === 'revisado') && '✓'}
+                                        </div>
+
+                                        <div className="flex flex-col flex-1">
+
+                                            <span className={`text-sm font-medium leading-tight ${
+                                                status
+                                                ? 'line-through opacity-70'
+                                                : ''
+                                            }`}>
+                                                {item.text}
+                                            </span>
+
+                                            {status === 'revisado' && currentRole === 'gestora' && (
+                                                <span className="text-[9px] text-blue-400 font-bold mt-0.5">
+                                                    ✓ REVISADO
+                                                </span>
+                                            )}
+
+                                            {status === 'revisado' && currentRole === 'colaborador' && (
+                                                <span className="text-[9px] text-emerald-500/60 font-bold mt-0.5">
+                                                    ✓ REVISADO PELA GESTORA
+                                                </span>
+                                            )}
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </section>
+                ))}
+            </main>
+        </div>
+    );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+
+</script>
+
 </body>
 </html>
