@@ -1,12 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>CHECK-LIST LIMPEZA</title>
 
     <link rel="manifest" href="manifest.json">
+
     <meta name="theme-color" content="#18181b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -58,24 +58,28 @@
 <div id="root"></div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-    import {
-        getFirestore,
-        doc,
-        setDoc,
-        getDoc,
-        serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-    window.firebaseModules = {
-        initializeApp,
-        getFirestore,
-        doc,
-        setDoc,
-        getDoc,
-        serverTimestamp
-    };
+import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    serverTimestamp,
+    onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+window.firebaseModules = {
+    initializeApp,
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    serverTimestamp,
+    onSnapshot
+};
+
 </script>
 
 <script type="text/babel">
@@ -86,7 +90,8 @@ const {
     doc,
     setDoc,
     getDoc,
-    serverTimestamp
+    serverTimestamp,
+    onSnapshot
 } = window.firebaseModules;
 
 const firebaseConfig = {
@@ -104,27 +109,104 @@ const db = getFirestore(app);
 const { useState, useEffect } = React;
 
 const checklistData = [
-    {
-        id: "sec_1",
-        title: "1 - COPA",
-        items: [{ id: "1_1", text: "Café" }]
-    },
+    { id: "sec_1", title: "1 - COPA", items: [{ id: "1_1", text: "Café" }] },
 
-    {
-        id: "sec_2",
-        title: "2 - RECEPÇÃO",
-        items: [
-            { id: "2_1", text: "Varrer a calçada" },
-            { id: "2_2", text: "Varrer a sala" },
-            { id: "2_3", text: "Repor água das máquinas e da garrafa" },
-            { id: "2_4", text: "Repõe as capsulas, sachês, e mexedor de café" },
-            { id: "2_5", text: "Repõe as xícaras e copos" },
-            { id: "2_6", text: "Higienização geral das superfícies" },
-            { id: "2_7", text: "Troca o lixo" },
-            { id: "2_8", text: "Regar as plantas" },
-            { id: "2_9", text: "Passar pano chão" }
-        ]
-    }
+    { id: "sec_2", title: "2 - RECEPÇÃO", items: [
+        { id: "2_1", text: "Varrer a calçada" },
+        { id: "2_2", text: "Varrer a sala" },
+        { id: "2_3", text: "Repor água das máquinas e da garrafa" },
+        { id: "2_4", text: "Repõe as capsulas, sachês, e mexedor de café" },
+        { id: "2_5", text: "Repõe as xícaras e copos" },
+        { id: "2_6", text: "Higienização geral das superfícies" },
+        { id: "2_7", text: "Troca o lixo" },
+        { id: "2_8", text: "Regar as plantas" },
+        { id: "2_9", text: "Passar pano chão" }
+    ]},
+
+    { id: "sec_3", title: "3 - ÁREA DE CONVIVÊNCIA", items: [
+        { id: "3_1", text: "Varrer a sala" },
+        { id: "3_2", text: "Repor água das máquinas" },
+        { id: "3_3", text: "Repõe as capsulas, sachês, e mexedor de café" },
+        { id: "3_4", text: "Repõe as xícaras e copos" },
+        { id: "3_5", text: "Higienização geral das superfícies" },
+        { id: "3_6", text: "Troca o lixo" },
+        { id: "3_7", text: "Regar as plantas" },
+        { id: "3_8", text: "Passar pano no chão" }
+    ]},
+
+    { id: "sec_4", title: "4 - SALA DE REUNIÃO", items: [
+        { id: "4_1", text: "Limpeza das superfícies" },
+        { id: "4_2", text: "Varre" },
+        { id: "4_3", text: "Passar pano no chão" }
+    ]},
+
+    { id: "sec_5", title: "5 - SALA DO LINCOILN", items: [
+        { id: "5_1", text: "Repor água da geladeira" },
+        { id: "5_2", text: "Limpa as superfícies" },
+        { id: "5_3", text: "Varrer" },
+        { id: "5_4", text: "Passar pano chão" },
+        { id: "5_5", text: "Tira o lixo" }
+    ]},
+
+    { id: "sec_6", title: "6 - COPINHA", items: [
+        { id: "6_1", text: "Lavar louça" },
+        { id: "6_2", text: "Limpa as superfícies" },
+        { id: "6_3", text: "Tira o lixo" },
+        { id: "6_4", text: "Repõe papel toalha" },
+        { id: "6_5", text: "Descer panos de prato para lavar" }
+    ]},
+
+    { id: "sec_7", title: "7 - SALA ADMINISTRATIVO", items: [
+        { id: "7_1", text: "Limpa as superfícies" },
+        { id: "7_2", text: "Varre" },
+        { id: "7_3", text: "Passar pano chão" },
+        { id: "7_4", text: "Tira o lixo" }
+    ]},
+
+    { id: "sec_8", title: "8 - BANHEIRO", items: [
+        { id: "8_1", text: "Limpa as superfícies" },
+        { id: "8_2", text: "Repor papeis" },
+        { id: "8_3", text: "Lavar vaso" },
+        { id: "8_4", text: "Manutenção do lixo" },
+        { id: "8_5", text: "1x por semana lavar o banheiro todo" }
+    ]},
+
+    { id: "sec_9", title: "9 - LIMPEZA DE VIDROS BOXES E PORTAS", items: [
+        { id: "9_1", text: "Passar pano com vinagre" },
+        { id: "9_2", text: "Passar pano seco" }
+    ]},
+
+    { id: "sec_10", title: "10 - BANHEIROS DE FUNCIONÁRIOS", items: [
+        { id: "10_1", text: "1x por semana lavar o banheiro todo" },
+        { id: "10_2", text: "Limpa as superfícies" },
+        { id: "10_3", text: "Repor papeis" },
+        { id: "10_4", text: "Lavar vaso" },
+        { id: "10_5", text: "Manutenção do lixo" }
+    ]},
+
+    { id: "sec_11", title: "11 - COPA - café da manhã", items: [
+        { id: "11_1", text: "Limpa as superfícies" },
+        { id: "11_2", text: "Varrer" },
+        { id: "11_3", text: "Passar pano" },
+        { id: "11_4", text: "Lavar a louça" }
+    ]},
+
+    { id: "sec_12", title: "12 - LIMPEZA DOS PANOS", items: [
+        { id: "12_1", text: "Separar por uso" },
+        { id: "12_2", text: "Colocar de molho os mais limpos" },
+        { id: "12_3", text: "Esfregar os encardidos" }
+    ]},
+
+    { id: "sec_13", title: "13 - CAFÉ DA TARDE", items: [
+        { id: "13_1", text: "COPA - Almoço" },
+        { id: "13_2", text: "Limpa as superfícies" },
+        { id: "13_3", text: "Varrer" },
+        { id: "13_4", text: "Passar pano" }
+    ]},
+
+    { id: "sec_14", title: "14 - REVISÃO PARA O FECHAMENTO (areas de clientes)", items: [
+        { id: "14_1", text: "Revisão geral para o fechamento (áreas de clientes)" }
+    ]}
 ];
 
 function App() {
@@ -191,46 +273,43 @@ function App() {
             .toLocaleDateString('pt-BR', options)
         );
 
-        loadChecklist();
+        // 🔥 TEMPO REAL FIREBASE
+        const unsubscribe = onSnapshot(
+
+            doc(db, "checklists", selectedDate),
+
+            (docSnap) => {
+
+                if (docSnap.exists()) {
+
+                    const data = docSnap.data();
+
+                    setItemStatuses(data.statuses || {});
+
+                    setSavedStatus(
+                        data.saved || {
+                            colaborador: false,
+                            gestora: false
+                        }
+                    );
+
+                } else {
+
+                    setItemStatuses({});
+
+                    setSavedStatus({
+                        colaborador: false,
+                        gestora: false
+                    });
+                }
+            }
+        );
 
         setCurrentRole("colaborador");
 
+        return () => unsubscribe();
+
     }, [selectedDate]);
-
-    const loadChecklist = async () => {
-
-        try {
-
-            const docRef = doc(db, "checklists", selectedDate);
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-
-                const data = docSnap.data();
-
-                setItemStatuses(data.statuses || {});
-
-                setSavedStatus(
-                    data.saved || {
-                        colaborador: false,
-                        gestora: false
-                    }
-                );
-
-            } else {
-
-                setItemStatuses({});
-
-                setSavedStatus({
-                    colaborador: false,
-                    gestora: false
-                });
-            }
-
-        } catch (error) {
-            console.error(error);
-        }
-    };
 
     const saveToFirebase = async (statuses, saved) => {
 
@@ -280,19 +359,34 @@ function App() {
             const current = prev[itemId];
             let next = null;
 
+            // 👷 COLABORADOR
             if (currentRole === 'colaborador') {
 
+                // NÃO MEXE EM REVISADO
                 if (current === 'revisado') return prev;
 
                 next = current === 'feito'
                     ? null
                     : 'feito';
+            }
 
-            } else {
+            // 👩‍💼 GESTORA
+            else {
 
-                next = current === 'revisado'
-                    ? 'feito'
-                    : 'revisado';
+                // GESTORA SÓ REVISA O QUE ESTÁ FEITO
+                if (current === 'feito') {
+                    next = 'revisado';
+                }
+
+                // SE JÁ REVISADO VOLTA PRA FEITO
+                else if (current === 'revisado') {
+                    next = 'feito';
+                }
+
+                // NÃO DEIXA GESTORA MARCAR ITEM VAZIO
+                else {
+                    return prev;
+                }
             }
 
             const updated = {
@@ -330,37 +424,37 @@ function App() {
 
     return (
 
-        <div className="max-w-6xl mx-auto px-4 pt-6">
+        <div class="max-w-6xl mx-auto px-4 pt-6">
 
             {notification && (
-                <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-black px-6 py-3 rounded-xl font-bold shadow-2xl">
+                <div class="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-black px-6 py-3 rounded-xl font-bold shadow-2xl">
                     {notification}
                 </div>
             )}
 
-            <header className="bg-darkcard border border-darkborder rounded-2xl p-6 mb-6 shadow-xl sticky top-2 z-40 backdrop-blur-md bg-opacity-90">
+            <header class="bg-darkcard border border-darkborder rounded-2xl p-6 mb-6 shadow-xl sticky top-2 z-40 backdrop-blur-md bg-opacity-90">
 
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
 
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
 
                         <div>
-                            <h1 className="text-xl font-bold text-white tracking-tight">
+                            <h1 class="text-xl font-bold text-white tracking-tight">
                                 CHECK-LIST LIMPEZA
                             </h1>
 
-                            <div className="text-[11px] text-zinc-400 mt-1 font-medium flex flex-wrap items-center gap-2 uppercase">
+                            <div class="text-[11px] text-zinc-400 mt-1 font-medium flex flex-wrap items-center gap-2 uppercase">
 
                                 <span>{displayDateText}</span>
 
                                 {savedStatus.colaborador && (
-                                    <span className="bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 font-bold">
+                                    <span class="bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 font-bold">
                                         💾 Salvo Colaborador
                                     </span>
                                 )}
 
                                 {savedStatus.gestora && (
-                                    <span className="bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20 font-bold">
+                                    <span class="bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20 font-bold">
                                         💾 Salvo Gestora
                                     </span>
                                 )}
@@ -371,15 +465,15 @@ function App() {
                             type="date"
                             value={selectedDate}
                             onChange={(e) => setSelectedDate(e.target.value)}
-                            className="bg-zinc-900 border border-darkborder rounded-xl px-3 py-2 text-sm text-white"
+                            class="bg-zinc-900 border border-darkborder rounded-xl px-3 py-2 text-sm text-white"
                         />
                     </div>
 
-                    <div className="bg-zinc-900 p-1 rounded-xl border border-darkborder flex self-start lg:self-center">
+                    <div class="bg-zinc-900 p-1 rounded-xl border border-darkborder flex self-start lg:self-center">
 
                         <button
                             onClick={() => handleRoleSwitch('colaborador')}
-                            className={`px-4 py-2 text-xs font-bold rounded-lg ${
+                            class={`px-4 py-2 text-xs font-bold rounded-lg ${
                                 currentRole === 'colaborador'
                                 ? 'bg-emerald-600 text-white shadow'
                                 : 'text-zinc-500'
@@ -390,7 +484,7 @@ function App() {
 
                         <button
                             onClick={() => handleRoleSwitch('gestora')}
-                            className={`px-4 py-2 text-xs font-bold rounded-lg ${
+                            class={`px-4 py-2 text-xs font-bold rounded-lg ${
                                 currentRole === 'gestora'
                                 ? 'bg-blue-600 text-white shadow'
                                 : 'text-zinc-500'
@@ -400,37 +494,37 @@ function App() {
                         </button>
                     </div>
 
-                    <div className="flex items-center gap-4 min-w-[260px] lg:justify-end">
+                    <div class="flex items-center gap-4 min-w-[260px] lg:justify-end">
 
-                        <div className="flex-1 lg:flex-none">
+                        <div class="flex-1 lg:flex-none">
 
-                            <div className="flex justify-between text-[10px] font-bold text-zinc-400 mb-1">
+                            <div class="flex justify-between text-[10px] font-bold text-zinc-400 mb-1">
 
-                                <span className="text-emerald-400">
+                                <span class="text-emerald-400">
                                     FEITO: {progressPercentage}%
                                 </span>
 
-                                <span className={
+                                <span class={
                                     currentRole === 'gestora'
-                                    ? 'text-blue-400'
-                                    : 'hidden'
+                                    ? "text-blue-400"
+                                    : "hidden"
                                 }>
                                     REVISADO: {reviewPercentage}%
                                 </span>
                             </div>
 
-                            <div className="w-full lg:w-40 bg-zinc-800 h-2 rounded-full relative overflow-hidden">
+                            <div class="w-full lg:w-40 bg-zinc-800 h-2 rounded-full relative overflow-hidden">
 
                                 <div
-                                    className="bg-emerald-500 h-full absolute transition-all"
+                                    class="bg-emerald-500 h-full absolute transition-all"
                                     style={{ width: `${progressPercentage}%`, zIndex: 1 }}
                                 ></div>
 
                                 <div
-                                    className={
+                                    class={
                                         currentRole === 'gestora'
-                                        ? 'bg-blue-500 h-full absolute transition-all'
-                                        : 'hidden'
+                                        ? "bg-blue-500 h-full absolute transition-all"
+                                        : "hidden"
                                     }
                                     style={{ width: `${reviewPercentage}%`, zIndex: 2 }}
                                 ></div>
@@ -439,7 +533,7 @@ function App() {
 
                         <button
                             onClick={handleSaveClick}
-                            className={`px-5 py-2.5 rounded-xl font-bold text-xs shadow ${
+                            class={`px-5 py-2.5 rounded-xl font-bold text-xs shadow ${
                                 currentRole === 'gestora'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-emerald-500 text-black'
@@ -451,22 +545,22 @@ function App() {
                 </div>
             </header>
 
-            <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                 {checklistData.map((section) => (
 
                     <section
                         key={section.id}
-                        className="bg-darkcard border border-darkborder rounded-2xl overflow-hidden shadow-md flex flex-col"
+                        class="bg-darkcard border border-darkborder rounded-2xl overflow-hidden shadow-md flex flex-col"
                     >
 
-                        <div className="bg-zinc-900 border-b border-darkborder px-4 py-3">
-                            <h2 className="text-xs font-bold text-zinc-300 uppercase">
+                        <div class="bg-zinc-900 border-b border-darkborder px-4 py-3">
+                            <h2 class="text-xs font-bold text-zinc-300 uppercase">
                                 {section.title}
                             </h2>
                         </div>
 
-                        <div className="p-3 flex-1 flex flex-col gap-2">
+                        <div class="p-3 flex-1 flex flex-col gap-2">
 
                             {section.items.map((item) => {
 
@@ -503,7 +597,7 @@ function App() {
                                             currentRole === 'colaborador' &&
                                             status === 'revisado'
                                         }
-                                        className={`w-full text-left p-3 rounded-xl border flex items-start gap-3 transition-all ${bStyle} ${
+                                        class={`w-full text-left p-3 rounded-xl border flex items-start gap-3 transition-all ${bStyle} ${
                                             currentRole === 'colaborador' &&
                                             status === 'revisado'
                                             ? 'cursor-not-allowed'
@@ -511,13 +605,13 @@ function App() {
                                         }`}
                                     >
 
-                                        <div className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 font-bold text-xs ${cStyle}`}>
+                                        <div class={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 font-bold text-xs ${cStyle}`}>
                                             {(status === 'feito' || status === 'revisado') && '✓'}
                                         </div>
 
-                                        <div className="flex flex-col flex-1">
+                                        <div class="flex flex-col flex-1">
 
-                                            <span className={`text-sm font-medium leading-tight ${
+                                            <span class={`text-sm font-medium leading-tight ${
                                                 status
                                                 ? 'line-through opacity-70'
                                                 : ''
@@ -526,13 +620,13 @@ function App() {
                                             </span>
 
                                             {status === 'revisado' && currentRole === 'gestora' && (
-                                                <span className="text-[9px] text-blue-400 font-bold mt-0.5">
+                                                <span class="text-[9px] text-blue-400 font-bold mt-0.5">
                                                     ✓ REVISADO
                                                 </span>
                                             )}
 
                                             {status === 'revisado' && currentRole === 'colaborador' && (
-                                                <span className="text-[9px] text-emerald-500/60 font-bold mt-0.5">
+                                                <span class="text-[9px] text-emerald-500/60 font-bold mt-0.5">
                                                     ✓ REVISADO PELA GESTORA
                                                 </span>
                                             )}
